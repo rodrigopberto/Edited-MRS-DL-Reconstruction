@@ -1,0 +1,44 @@
+name: miccai_ft_unet_1d
+device: cuda
+starting_checkpoint: miccai/saved_weights/20230703_miccai_sim_unet_1d.pth
+pipeline:
+  pipeline_name: diff
+  model_name: unet_1d
+  model_config: 
+    input_channels: 2
+    steps: 4
+    initial_filters: 64
+    kernel_size: 5
+train:
+  dataset_type: invivo
+  data_file: data/splits/train_data_split_1.h5
+  transform: random_accelerate
+  weight_output_folder: miccai/saved_weights
+  json_output_folder: miccai/train_jsons
+  loss_fn: range_mae
+  learning_rate: 0.005
+  epochs: 1000
+  batch_size: 6
+  scheduler_freq: 50
+  early_stop: 50
+  keep_best_treshold: 5
+  force_stop: null
+validation:
+  dataset_type: invivo
+  transform: accelerate
+  data_file: data/splits/val_data_split_1.h5
+  loss_fn: range_mae
+test:
+  dataset_type: invivo
+  transform: accelerate
+  data_file: data/splits/test_data_split_1.h5
+  json_output_folder: miccai/test_jsons
+  metrics:
+    - mse
+    - gaba_snr
+    - gaba_linewidth
+    - shape_score
+inference:
+  dataset_type: invivo
+  transform: accelerate
+  data_file: data/splits/test_data_split_1.h5
